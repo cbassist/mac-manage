@@ -18,9 +18,11 @@ brew "tree"
 brew "uv"
 brew "wget"
 cask "antigravity"
+cask "claude"
 cask "codex"
 cask "cursor"
 cask "docker-desktop"
+cask "obsidian"
 cask "visual-studio-code"
 mas "GarageBand", id: 682658836
 mas "iMovie", id: 408981434
