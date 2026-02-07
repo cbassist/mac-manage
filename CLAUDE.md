@@ -54,3 +54,59 @@ There is no build step, linter, or test suite. Scripts are run directly.
 - Dotfiles are copied (not symlinked); restore creates `.bak` backups before overwriting
 - macOS defaults are exported in dual format: `.txt` for human-readable diffs, `.plist` for `defaults import` restore
 - Scripts gracefully skip missing tools (e.g., `brew`, `mas`) with warnings via `has_cmd`
+
+## Claude Code Commands
+
+Five slash commands are installed globally that wrap `mac-manage.sh` with AI interpretation. They are available in any Claude Code session (not just this repo). Use them instead of running the CLI directly when you want analysis, not just raw output.
+
+| Command | What it does |
+|---------|-------------|
+| `/mac-health` | Runs `health`, then categorizes every finding as Critical / Important / Informational with exact remediation steps. Accepts optional context (e.g., `/mac-health "preparing for travel"`) to adjust priorities. |
+| `/mac-diff` | Runs `diff`, then reads the actual snapshot files to categorize changes (software, dotfiles, preferences, security), translate plist keys to plain language, and flag regressions. |
+| `/mac-status` | Snapshot lifecycle management. Four modes: no args (list with age/size), `"snapshot"` (take + auto-diff), `"prune"` (suggest deletions), `"weekly"` (full review combining snapshot + diff + health + discovery). |
+| `/mac-discover` | Scans the system for dotfiles, defaults domains, and apps that mac-manage doesn't track yet. Rates each as Recommended / Optional / Skip and provides copy-paste lines for baseline files. |
+| `/mac-restore` | Always runs `--dry-run` first regardless of args. Validates the snapshot, diffs against current state, flags incompatibilities (stale PATHs, uninstalled app domains, macOS version mismatch), rates risk, and requires explicit confirmation before executing. |
+
+### Recommended Workflows
+
+**Weekly maintenance** — one command does it all:
+```
+/mac-status "weekly"
+```
+Takes a snapshot, diffs against previous, runs health checks, and does abbreviated discovery. Produces a consolidated report with action items.
+
+**After installing new software:**
+```
+/mac-status "snapshot"
+/mac-discover "apps"
+```
+Capture the change, then check if new apps should be added to baseline tracking.
+
+**Before traveling:**
+```
+/mac-health "preparing for travel"
+```
+Elevates encryption and firewall checks to Critical priority.
+
+**Restoring after a clean install:**
+```
+/mac-restore "latest"
+```
+Walks you through a safe, validated restore with full dry-run preview.
+
+**Expanding what's tracked:**
+```
+/mac-discover
+```
+Finds untracked dotfiles, preference domains, and manually installed apps. Add the suggestions to `baseline/` files, then run `/mac-status "snapshot"` to capture them.
+
+### How They Work
+
+All commands call `mac-manage.sh` via Bash — they never reimplement its logic. The AI layer adds:
+- **Categorization** — raw PASS/WARN/FAIL becomes prioritized tiers
+- **Translation** — plist keys like `autohide = 1` become "Dock auto-hide enabled"
+- **Regression detection** — compares `security-status.txt` between snapshots
+- **Safety gates** — `/mac-restore` always previews before executing
+- **Context awareness** — optional user context shifts priorities (travel → encryption)
+
+The shared knowledge base lives in the `mac-manage-context` skill (installed globally at `~/.claude/skills/mac-manage-context/`). It contains paths, output format references, a macOS defaults domain glossary, and a common dotfile glossary.
