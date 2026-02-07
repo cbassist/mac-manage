@@ -1,0 +1,5 @@
+# Dotfiles to track in snapshots
+# One path per line, relative to $HOME
+# Lines starting with # are comments
+.zshrc
+.gitconfig
