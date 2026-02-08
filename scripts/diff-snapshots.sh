@@ -7,8 +7,11 @@ SNAP_B="${2:-}"
 
 # Auto-select latest two snapshots if no args given
 if [[ -z "$SNAP_A" ]]; then
-    mapfile -t recent < <(latest_snapshots 2)
-    if (( ${#recent[@]} < 2 )); then
+    recent=()
+    while IFS= read -r line; do
+        recent+=("$line")
+    done < <(latest_snapshots 2)
+    if [[ ${#recent[@]} -lt 2 ]]; then
         log_error "Need at least 2 snapshots to diff. Found ${#recent[@]}."
         log_info "Run 'mac-manage.sh snapshot' to create one."
         exit 1
