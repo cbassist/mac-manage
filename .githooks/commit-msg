@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+# commit-msg hook — warns when commit messages are missing changelog sections
+# Warn-but-don't-block: exits 0 always, but prints guidance for incomplete messages.
+# See .github/COMMIT_TEMPLATE.md for the full format.
+
+set -euo pipefail
+
+MSG_FILE="$1"
+MSG=$(cat "$MSG_FILE")
+
+# Strip comments (lines starting with #)
+BODY=$(echo "$MSG" | grep -v '^#' || true)
+
+# Extract subject (first non-empty line)
+SUBJECT=$(echo "$BODY" | head -1)
+
+# Count files being committed
+CHANGED_FILES=$(git diff --cached --name-only | wc -l | tr -d ' ')
+
+# ── Subject line checks ──────────────────────────────────────────────
+if [[ ${#SUBJECT} -gt 72 ]]; then
+    echo ""
+    echo "⚠  Commit message: subject line is ${#SUBJECT} chars (aim for ≤72)"
+fi
+
+# ── Body checks (only for multi-file commits) ────────────────────────
+# Single-file commits (e.g., Brewfile additions) get a lighter check.
+if [[ "$CHANGED_FILES" -le 1 ]]; then
+    # For single-file commits, just check for WHY
+    if ! echo "$BODY" | grep -qi '^WHY:'; then
+        echo ""
+        echo "⚠  Commit message: missing WHY section"
+        echo "   Even simple changes benefit from a one-line WHY."
+        echo "   See: .github/COMMIT_TEMPLATE.md"
+    fi
+else
+    # Multi-file commits should have full structure
+    MISSING=()
+    echo "$BODY" | grep -qi '^WHY:'  || MISSING+=("WHY")
+    echo "$BODY" | grep -qi '^WHAT:' || MISSING+=("WHAT")
+    echo "$BODY" | grep -qi '^HOW:'  || MISSING+=("HOW")
+
+    if [[ ${#MISSING[@]} -gt 0 ]]; then
+        echo ""
+        echo "⚠  Commit message: missing sections: ${MISSING[*]}"
+        echo "   This commit touches $CHANGED_FILES files — consider adding detail."
+        echo "   See: .github/COMMIT_TEMPLATE.md"
+        echo ""
+        echo "   Proceed anyway? (hook is warn-only, commit will succeed)"
+    fi
+fi
+
+# Always succeed — this is advisory, not blocking
+exit 0

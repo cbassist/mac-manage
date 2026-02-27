@@ -14,7 +14,7 @@ mac-manage is a pure-bash CLI tool for tracking installed software, dotfiles, an
 ./mac-manage.sh snapshot-config     # Snapshot only dotfiles + macOS prefs
 ./mac-manage.sh health              # Security/disk/backup/update audit
 ./mac-manage.sh diff [old] [new]    # Compare two snapshots (auto-selects latest two)
-./mac-manage.sh restore <dir> [--dry-run] [--dotfiles] [--defaults]
+./mac-manage.sh restore <dir> [--dry-run] [--dotfiles] [--defaults] [--launchd]
 ./mac-manage.sh list                # List snapshots with file counts
 ```
 
@@ -35,12 +35,13 @@ There is no build step, linter, or test suite. Scripts are run directly.
 - `snapshot-config.sh` — copies dotfiles from `$HOME` and exports macOS `defaults` as both `.txt` (readable) and `.plist` (restorable)
 - `health-check.sh` — checks FileVault, Firewall, SIP, Gatekeeper, Time Machine, disk usage, macOS updates, Homebrew status
 - `diff-snapshots.sh` — unified diff across all snapshot categories between two snapshots
-- `restore-config.sh` — restores dotfiles (with `.bak` backup) and imports `.plist` defaults; supports `--dry-run`
+- `restore-config.sh` — restores dotfiles (with `.bak` backup), imports `.plist` defaults, and restores launchd plists; supports `--dry-run`
 
 **Baseline configuration** (`baseline/`):
 - `dotfiles.list` — which dotfiles to track (paths relative to `$HOME`, one per line)
 - `defaults-domains.list` — which macOS preference domains to track (one per line)
 - `apps-manual.list` — manually installed apps not from brew/mas (documentation only)
+- `launchd.list` — launchd plist paths to track (full paths, one per line)
 - `Brewfile` — Homebrew bundle dump for recreating installs
 
 **Snapshots** (`snapshots/`) are timestamped directories (e.g., `20260207-040808/`) and are git-ignored. They contain the captured state at a point in time.
@@ -50,10 +51,19 @@ There is no build step, linter, or test suite. Scripts are run directly.
 ## Conventions
 
 - All scripts use `set -euo pipefail` and `#!/usr/bin/env bash`
+- All scripts must be compatible with **macOS Bash 3.2** (no `mapfile`, no `declare -A`, no `readarray`)
 - Configuration lists use `#` for comments and skip blank lines
 - Dotfiles are copied (not symlinked); restore creates `.bak` backups before overwriting
 - macOS defaults are exported in dual format: `.txt` for human-readable diffs, `.plist` for `defaults import` restore
 - Scripts gracefully skip missing tools (e.g., `brew`, `mas`) with warnings via `has_cmd`
+
+## Commit Messages
+
+Commit messages serve as the **complete project changelog**. Every commit must explain WHY, WHAT, and (for multi-file changes) HOW. Include failed approaches, validation steps, and error messages when applicable.
+
+**Template:** [`.github/COMMIT_TEMPLATE.md`](.github/COMMIT_TEMPLATE.md)
+
+**Hook:** `.githooks/commit-msg` warns (non-blocking) when sections are missing. Multi-file commits are checked for WHY/WHAT/HOW; single-file commits are checked for WHY only. Configured via `core.hooksPath = .githooks`.
 
 ## Claude Code Commands
 
