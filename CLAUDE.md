@@ -63,7 +63,7 @@ Commit messages serve as the **complete project changelog**. Every commit must e
 
 **Template:** [`.github/COMMIT_TEMPLATE.md`](.github/COMMIT_TEMPLATE.md)
 
-**Hook:** `.githooks/commit-msg` warns (non-blocking) when sections are missing. Multi-file commits are checked for WHY/WHAT/HOW; single-file commits are checked for WHY only. Configured via `core.hooksPath = .githooks`.
+**Hook:** `.githooks/commit-msg` **blocks** commits missing required sections. Multi-file commits need WHY/WHAT/HOW; single-file commits need WHY. Override with `--no-verify` when intentional. Configured via `core.hooksPath = .githooks`.
 
 ## Claude Code Commands
 
