@@ -9,8 +9,9 @@ usage() {
     echo "  --dry-run     Show what would be restored without making changes"
     echo "  --dotfiles    Restore only dotfiles"
     echo "  --defaults    Restore only macOS defaults"
+    echo "  --launchd     Restore only launchd plists"
     echo ""
-    echo "If no --dotfiles/--defaults flag is given, both are restored."
+    echo "If no filter flag is given, all categories are restored."
     exit 1
 }
 
@@ -18,6 +19,7 @@ SNAP_DIR=""
 DRY_RUN=false
 DO_DOTFILES=false
 DO_DEFAULTS=false
+DO_LAUNCHD=false
 
 # Parse args
 for arg in "$@"; do
@@ -25,6 +27,7 @@ for arg in "$@"; do
         --dry-run)   DRY_RUN=true ;;
         --dotfiles)  DO_DOTFILES=true ;;
         --defaults)  DO_DEFAULTS=true ;;
+        --launchd)   DO_LAUNCHD=true ;;
         --help|-h)   usage ;;
         *)
             if [[ -z "$SNAP_DIR" ]]; then
@@ -37,10 +40,11 @@ for arg in "$@"; do
     esac
 done
 
-# If neither flag given, do both
-if ! $DO_DOTFILES && ! $DO_DEFAULTS; then
+# If no filter flag given, do all
+if ! $DO_DOTFILES && ! $DO_DEFAULTS && ! $DO_LAUNCHD; then
     DO_DOTFILES=true
     DO_DEFAULTS=true
+    DO_LAUNCHD=true
 fi
 
 if [[ -z "$SNAP_DIR" ]]; then
@@ -104,6 +108,54 @@ if $DO_DEFAULTS && [[ -d "$SNAP_DIR/defaults" ]]; then
     fi
 elif $DO_DEFAULTS; then
     log_warn "No defaults directory in snapshot: $SNAP_DIR"
+fi
+
+# ── Restore launchd plists ───────────────────────────────────────────
+if $DO_LAUNCHD && [[ -d "$SNAP_DIR/launchd" ]]; then
+    log_header "Restoring launchd plists"
+    # Look up original path for a plist basename from baseline list
+    # Uses a function instead of associative array for Bash 3.2 compatibility
+    _launchd_dest() {
+        local target="$1"
+        if [[ -f "$BASELINE_DIR/launchd.list" ]]; then
+            while IFS= read -r line; do
+                [[ "$line" =~ ^[[:space:]]*# ]] && continue
+                [[ -z "${line// /}" ]] && continue
+                if [[ "$(basename "$line")" == "$target" ]]; then
+                    echo "$line"
+                    return
+                fi
+            done < "$BASELINE_DIR/launchd.list"
+        fi
+    }
+
+    for src in "$SNAP_DIR/launchd"/*.plist; do
+        [[ -f "$src" ]] || continue
+        name=$(basename "$src")
+        dest=$(_launchd_dest "$name")
+
+        if [[ -z "$dest" ]]; then
+            log_warn "$name not in launchd.list — skipping (no restore target)"
+            continue
+        fi
+
+        if $DRY_RUN; then
+            if [[ -f "$dest" ]]; then
+                log_info "Would backup $dest -> ${dest}.bak"
+            fi
+            log_info "Would copy $name -> $dest"
+        else
+            if [[ -f "$dest" ]]; then
+                cp "$dest" "${dest}.bak"
+                log_info "Backed up $dest -> ${dest}.bak"
+            fi
+            cp "$src" "$dest"
+            log_success "Restored $name -> $dest"
+            log_info "  Run: brew services restart <service> to apply"
+        fi
+    done
+elif $DO_LAUNCHD; then
+    log_warn "No launchd directory in snapshot: $SNAP_DIR"
 fi
 
 # ── Summary ────────────────────────────────────────────────────────────

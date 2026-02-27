@@ -1,0 +1,9 @@
+# Launchd plists to track in snapshots
+# Full paths to plist files; lines starting with # are comments
+#
+# User agents (~Library/LaunchAgents)
+# System agents (/Library/LaunchAgents)
+# Homebrew services (under: brew --prefix)
+
+# Ollama (Homebrew service)
+/opt/homebrew/opt/ollama/homebrew.mxcl.ollama.plist

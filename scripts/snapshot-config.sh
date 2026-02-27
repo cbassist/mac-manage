@@ -41,6 +41,24 @@ while IFS= read -r domain; do
     log_info "  exported $domain"
 done < "$BASELINE_DIR/defaults-domains.list"
 
+# ── Launchd plists ────────────────────────────────────────────────────
+if [[ -f "$BASELINE_DIR/launchd.list" ]]; then
+    log_info "Copying launchd plists"
+    mkdir -p "$SNAP_DIR/launchd"
+    while IFS= read -r line; do
+        [[ "$line" =~ ^[[:space:]]*# ]] && continue
+        [[ -z "${line// /}" ]] && continue
+
+        if [[ -f "$line" ]]; then
+            name=$(basename "$line")
+            cp "$line" "$SNAP_DIR/launchd/$name"
+            log_info "  copied $name"
+        else
+            log_warn "  $line not found, skipping"
+        fi
+    done < "$BASELINE_DIR/launchd.list"
+fi
+
 # ── Security settings snapshot ─────────────────────────────────────────
 log_info "Security settings"
 {

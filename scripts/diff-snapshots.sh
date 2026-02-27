@@ -94,6 +94,19 @@ if [[ -d "$SNAP_A/defaults" ]] && [[ -d "$SNAP_B/defaults" ]]; then
     done
 fi
 
+# ── Launchd plists ────────────────────────────────────────────────────
+if [[ -d "$SNAP_A/launchd" ]] && [[ -d "$SNAP_B/launchd" ]]; then
+    for f in "$SNAP_B/launchd"/*.plist; do
+        [[ -f "$f" ]] || continue
+        name=$(basename "$f")
+        if diff_files "Launchd: ${name%.plist}" "$SNAP_A/launchd/$name" "$f"; then
+            :
+        else
+            ((CHANGES++))
+        fi
+    done
+fi
+
 # ── Summary ────────────────────────────────────────────────────────────
 log_header "Summary"
 if (( CHANGES == 0 )); then
