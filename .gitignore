@@ -1,3 +1,4 @@
 snapshots/
 .DS_Store
 *.bak
+*.code-workspace
