@@ -26,6 +26,7 @@ cask "cursor"
 cask "docker-desktop"
 cask "figma"
 cask "obsidian"
+cask "spotify"
 cask "visual-studio-code"
 mas "GarageBand", id: 682658836
 mas "iMovie", id: 408981434
