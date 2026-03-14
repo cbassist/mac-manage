@@ -3,3 +3,5 @@
 # Lines starting with # are comments
 .zshrc
 .gitconfig
+.ssh/config
+.config/gh/config.yml

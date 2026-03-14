@@ -8,3 +8,8 @@ com.apple.screensaver
 com.apple.menuextra.clock
 com.apple.WindowManager
 com.apple.universalaccess
+com.apple.Terminal
+com.apple.Safari
+com.apple.symbolichotkeys
+com.mitchellh.ghostty
+com.anthropic.claudefordesktop

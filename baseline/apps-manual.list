@@ -9,3 +9,4 @@ GCS-8 (MTK-STREAM) Driver | https://www.boss.info/us/support/by_product/gigcaste
 GCS-8 (MTK-RECORD) Driver | https://www.boss.info/us/support/by_product/gigcaster-8/updates-drivers/
 Gigcaster 8 App | https://www.boss.info/us/support/by_product/gigcaster-8/updates-drivers/
 OpenClaw | npm install -g openclaw@latest | https://github.com/openclaw/openclaw
+Tailscale | brew install --cask tailscale | https://tailscale.com
