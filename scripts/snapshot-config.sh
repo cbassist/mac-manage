@@ -16,6 +16,7 @@ while IFS= read -r line; do
 
     src="$HOME/$line"
     if [[ -f "$src" ]]; then
+        mkdir -p "$SNAP_DIR/dotfiles/$(dirname "$line")"
         cp "$src" "$SNAP_DIR/dotfiles/$line"
         log_info "  copied $line"
     else

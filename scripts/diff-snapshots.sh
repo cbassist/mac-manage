@@ -71,14 +71,15 @@ fi
 
 # ── Dotfiles ───────────────────────────────────────────────────────────
 if [[ -d "$SNAP_A/dotfiles" ]] && [[ -d "$SNAP_B/dotfiles" ]]; then
-    for f in "$SNAP_B/dotfiles"/*; do
-        name=$(basename "$f")
+    while IFS= read -r f; do
+        [[ -f "$f" ]] || continue
+        name="${f#$SNAP_B/dotfiles/}"
         if diff_files "Dotfile: $name" "$SNAP_A/dotfiles/$name" "$f"; then
             :
         else
             ((CHANGES++))
         fi
-    done
+    done < <(find "$SNAP_B/dotfiles" -type f)
 fi
 
 # ── macOS Defaults (text versions) ────────────────────────────────────

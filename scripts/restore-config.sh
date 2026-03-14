@@ -64,9 +64,10 @@ fi
 # ── Restore dotfiles ──────────────────────────────────────────────────
 if $DO_DOTFILES && [[ -d "$SNAP_DIR/dotfiles" ]]; then
     log_header "Restoring dotfiles"
-    for src in "$SNAP_DIR/dotfiles"/*; do
+    while IFS= read -r src; do
         [[ -f "$src" ]] || continue
-        name=$(basename "$src")
+        # Strip the snapshot dotfiles prefix to get the relative path
+        name="${src#$SNAP_DIR/dotfiles/}"
         dest="$HOME/$name"
 
         if $DRY_RUN; then
@@ -79,10 +80,11 @@ if $DO_DOTFILES && [[ -d "$SNAP_DIR/dotfiles" ]]; then
                 cp "$dest" "${dest}.bak"
                 log_info "Backed up $dest -> ${dest}.bak"
             fi
+            mkdir -p "$(dirname "$dest")"
             cp "$src" "$dest"
             log_success "Restored $name"
         fi
-    done
+    done < <(find "$SNAP_DIR/dotfiles" -type f)
 elif $DO_DOTFILES; then
     log_warn "No dotfiles directory in snapshot: $SNAP_DIR"
 fi
