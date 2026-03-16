@@ -1,0 +1,52 @@
+# Brewfile — curated for fresh macOS setup
+# Run: brew bundle --file=./Brewfile
+#
+# Uncomment sections as needed. Lines starting with # are skipped.
+
+# ── Core CLI tools ──────────────────────────────
+brew "coreutils"       # GNU utilities (gdate, gstat, etc.)
+brew "fd"              # Fast file finder (better than find)
+brew "fnm"             # Fast Node version manager
+brew "fzf"             # Fuzzy finder for terminal
+brew "gh"              # GitHub CLI
+brew "htop"            # Process viewer
+brew "jq"              # JSON processor
+brew "mas"             # Mac App Store CLI (needed for mas lines below)
+brew "ripgrep"         # Fast text search (rg)
+brew "tree"            # Directory tree viewer
+brew "wget"            # HTTP downloader
+
+# ── Development languages ───────────────────────
+brew "go"              # Go programming language
+brew "pyenv"           # Python version manager
+brew "rustup"          # Rust toolchain installer
+brew "uv"              # Fast Python package manager
+
+# ── Optional CLI tools (uncomment if wanted) ────
+# brew "neovim"        # Terminal text editor
+# brew "tmux"          # Terminal multiplexer
+# brew "xz"            # Compression utility
+# brew "ollama"        # Run LLMs locally
+
+# ── GUI Applications ───────────────────────────
+cask "claude"          # Claude desktop app
+cask "docker-desktop"  # Docker containers
+cask "figma"           # Design tool
+cask "obsidian"        # Note-taking / knowledge base
+cask "spotify"         # Music
+cask "visual-studio-code"  # Code editor
+
+# ── Optional GUI apps (uncomment if wanted) ─────
+# cask "cursor"        # AI code editor
+# cask "codex"         # OpenAI Codex CLI
+
+# ── Mac App Store ───────────────────────────────
+mas "GarageBand", id: 682658836
+mas "iMovie", id: 408981434
+mas "Keynote", id: 409183694
+mas "Numbers", id: 409203825
+mas "Pages", id: 409201541
+
+# ── VS Code extensions ──────────────────────────
+vscode "anthropic.claude-code"
+vscode "github.copilot-chat"

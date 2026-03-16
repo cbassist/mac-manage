@@ -2,3 +2,4 @@ snapshots/
 .DS_Store
 *.bak
 *.code-workspace
+credentials.env
