@@ -1,4 +1,5 @@
 snapshots/
+logs/
 .DS_Store
 *.bak
 *.code-workspace

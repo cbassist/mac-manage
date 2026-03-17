@@ -77,6 +77,24 @@ else
     ((ISSUES++))
 fi
 
+# ── Docker Disk Usage ─────────────────────────────────────────────────
+if has_cmd docker && docker info &>/dev/null; then
+    docker_raw="$HOME/Library/Containers/com.docker.docker/Data/vms/0/data/Docker.raw"
+    if [[ -f "$docker_raw" ]]; then
+        docker_kb=$(du -sk "$docker_raw" 2>/dev/null | cut -f1)
+        docker_gb=$((docker_kb / 1048576))
+        if (( docker_gb < 40 )); then
+            pass "Docker disk: ${docker_gb}GB"
+        elif (( docker_gb < 60 )); then
+            warn "Docker disk: ${docker_gb}GB — approaching threshold (40GB)"
+            ((ISSUES++))
+        else
+            fail "Docker disk: ${docker_gb}GB — run: docker system prune -a"
+            ((ISSUES++))
+        fi
+    fi
+fi
+
 log_header "Updates"
 
 # ── macOS updates ──────────────────────────────────────────────────────
