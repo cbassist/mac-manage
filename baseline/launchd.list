@@ -7,3 +7,4 @@
 
 # Ollama (Homebrew service)
 /opt/homebrew/opt/ollama/homebrew.mxcl.ollama.plist
+/Users/mike/Library/LaunchAgents/com.mike.hermes-dashboard.plist
